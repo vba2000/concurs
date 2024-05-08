@@ -1,0 +1,19 @@
+{
+  "name": "concurs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./app/index.js",
+    "docker:build": "docker image rm concurs -f && docker build -t concurs .",
+    "docker:start": "docker run --name=concurs_dev --rm -v /dev_data:/dev_data  -e CONFIG=/dev_data/concurs_data/config.json  concurs",
+    "docker:sh": "docker exec -it concurs bash"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  }
+}
