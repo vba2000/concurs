@@ -13,7 +13,7 @@ function getStats(txs, assetA, assetB) {
     function exchangeData(acc, tx) {
         const aPrecision = assetA.precision;
         const bPrecision = assetB.precision;
-        const { order1, order2, amount, price, version } = tx;
+        const { order1, order2, amount, price } = tx;
         const realPrice = price / 10 ** 8;
         const amountAsset = amount / (10 ** aPrecision);
         const priceAsset = Math.floor(amountAsset * realPrice * 10 ** bPrecision) / 10 ** bPrecision;
@@ -85,12 +85,12 @@ async function getStatistics() {
         const nodeHeight = await getHeight(NODE_URL);
         let concurs = concurses.find(( { start, end } ) => start && start < nodeHeight && end && end > nodeHeight );
         console.log('Node height:', nodeHeight);
-        updateConcursData(concurs, nodeHeight);
+        await updateConcursData(concurs, nodeHeight);
+        setTimeout(getStatistics, INTERVAL);
     } catch (error) {
         console.log("Error:", error);
+        setTimeout(getStatistics, 1000);
     }
-
-    setTimeout(getStatistics, INTERVAL);
 }
 
 function app() {
