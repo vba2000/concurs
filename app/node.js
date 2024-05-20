@@ -8,6 +8,15 @@ export async function getHeight(node_url) {
     return nodeHeight;
 }
 
+
+export async function getPoolStats(stats_url) {
+    const poolStats = await fetch(`${stats_url}`).then(res => res.json());
+    return poolStats.items.reduce((acc, item) => {
+        acc[item.address] = item;
+        return acc;
+    }, {});
+}
+
 export async function searchAsset(service_url, tickers = [], limit=2) {
     const assets = [];
     for (let ticker of tickers) {
@@ -43,7 +52,7 @@ export async function getBlocks(NODE_URL, from, to, limit=5, blocksPath) {
     }
 
     for (let i = from; i < to; i += limit) {
-        console.log('Fetch block', i, 'to', i + limit - 1);
+        console.log(new Date().toLocaleString(), 'Fetch block', i, 'to', i + limit - 1);
         const blocks_url = `${NODE_URL}blocks/seq/${i}/${i + limit - 1}`;
         const blocks_res = await fetch(blocks_url).then(res => res.json());
         blocks.push(...blocks_res);

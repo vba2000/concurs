@@ -7,7 +7,8 @@
     "start": "node ./app/index.js",
     "docker:build": "docker image rm concurs -f && docker build -t concurs .",
     "docker:start": "docker run --name=concurs_dev --rm -v /dev_data:/dev_data  -e CONFIG=/dev_data/concurs_data/config.json  concurs",
-    "docker:sh": "docker exec -it concurs bash"
+    "docker:sh": "docker exec -it concurs bash",
+    "docker:logs": "docker logs concurs_dev"
   },
   "author": "",
   "license": "ISC",

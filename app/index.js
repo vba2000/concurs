@@ -1,9 +1,9 @@
-import { getHeight, searchAsset, getTradeTxs } from  "./node.js";
+import { getHeight, searchAsset, getTradeTxs, getPoolStats } from  "./node.js";
 import { getInfo, updateUsersData } from  "./google.js";
 import { getConfig } from "./getConfig.js";
 const config = getConfig();
 
-const { GOOGLE_URL, NODE_URL, ASSETS_URL, MATCHER, BLOCKS, INTERVAL }  = config;
+const { GOOGLE_URL, NODE_URL, ASSETS_URL, MATCHER, BLOCKS, INTERVAL, STATS }  = config;
 
 /**
  * Parse tx list
@@ -48,7 +48,7 @@ async function getAllConcurses() {
 /**
  * Update concurs data
  */
-async function updateConcursData(concurs, nodeHeight) {
+async function updateConcursData(concurs, nodeHeight, poolStats) {
     if (!concurs) {
         return;
     }
@@ -68,12 +68,13 @@ async function updateConcursData(concurs, nodeHeight) {
 
     const usersData = Object.entries(stats).map(([id, { amount, price, volume }]) => {
         const pnl = (amount * lastPrice  + price);
+        const isPool = poolStats && poolStats[id] ? true : false;
         volume = volume;
-        return { id, volume, pnl, amount, price, lastPrice };
+        return { id, volume, pnl, amount, price, lastPrice, isPool };
     }).filter(a => a.volume > concurs.limit).sort((a, b) => b.pnl - a.pnl);
     
     const res = await updateUsersData(GOOGLE_URL, concurs, usersData);
-    console.log(concurs.name, 'Update data -', res);
+    console.log(new Date().toLocaleString(),concurs.name, 'Update data -', res);
 }
 
 
@@ -81,11 +82,12 @@ async function updateConcursData(concurs, nodeHeight) {
 
 async function getStatistics() {
     try {
+        const poolStats = await getPoolStats(STATS);
         const concurses = await getAllConcurses();
         const nodeHeight = await getHeight(NODE_URL);
         let concurs = concurses.find(( { start, end } ) => start && start < nodeHeight && end && end > nodeHeight );
         console.log('Node height:', nodeHeight);
-        await updateConcursData(concurs, nodeHeight);
+        await updateConcursData(concurs, nodeHeight, poolStats);
         setTimeout(getStatistics, INTERVAL);
     } catch (error) {
         console.log("Error:", error);
